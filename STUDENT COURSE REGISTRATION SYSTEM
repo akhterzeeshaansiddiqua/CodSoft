@@ -1,0 +1,140 @@
+import java.util.*;
+
+class Course {
+    private String code;
+    private String title;
+    private String description;
+    private int capacity;
+    private List<String> schedule;
+    private List<String> registeredStudents;
+
+    public Course(String code, String title, String description, int capacity, List<String> schedule) {
+        this.code = code;
+        this.title = title;
+        this.description = description;
+        this.capacity = capacity;
+        this.schedule = schedule;
+        this.registeredStudents = new ArrayList<>();
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public List<String> getSchedule() {
+        return schedule;
+    }
+
+    public List<String> getRegisteredStudents() {
+        return registeredStudents;
+    }
+
+    public void registerStudent(String studentId) {
+        if (registeredStudents.size() < capacity) {
+            registeredStudents.add(studentId);
+            System.out.println("Student with ID " + studentId + " registered successfully for course " + code);
+        } else {
+            System.out.println("Course " + code + " is already full. Registration failed for student with ID " + studentId);
+        }
+    }
+
+    public void removeStudent(String studentId) {
+        if (registeredStudents.remove(studentId)) {
+            System.out.println("Student with ID " + studentId + " removed successfully from course " + code);
+        } else {
+            System.out.println("Student with ID " + studentId + " is not registered for course " + code);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Course: " + code + ", Title: " + title + ", Description: " + description + ", Capacity: " + capacity + ", Schedule: " + schedule;
+    }
+}
+
+class Student {
+    private String id;
+    private String name;
+    private List<String> registeredCourses;
+
+    public Student(String id, String name) {
+        this.id = id;
+        this.name = name;
+        this.registeredCourses = new ArrayList<>();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<String> getRegisteredCourses() {
+        return registeredCourses;
+    }
+
+    public void registerCourse(String courseCode) {
+        registeredCourses.add(courseCode);
+        System.out.println("Student with ID " + id + " registered successfully for course " + courseCode);
+    }
+
+    public void removeCourse(String courseCode) {
+        if (registeredCourses.remove(courseCode)) {
+            System.out.println("Student with ID " + id + " removed successfully from course " + courseCode);
+        } else {
+            System.out.println("Student with ID " + id + " is not registered for course " + courseCode);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Student: ID=" + id + ", Name=" + name + ", Registered Courses=" + registeredCourses;
+    }
+}
+
+public class CourseRegistrationSystem {
+    public static void main(String[] args) {
+        // Create courses
+        Course course1 = new Course("CS101", "Introduction to Computer Science", "Basic concepts of programming", 20, Arrays.asList("Mon", "Wed", "Fri"));
+        Course course2 = new Course("MATH201", "Calculus", "Fundamental concepts of calculus", 30, Arrays.asList("Tue", "Thu"));
+
+        // Create students
+        Student student1 = new Student("S001", "John");
+        Student student2 = new Student("S002", "Alice");
+
+        // Register students for courses
+        course1.registerStudent(student1.getId());
+        course1.registerStudent(student2.getId());
+        course2.registerStudent(student1.getId());
+
+        // Display courses and students
+        System.out.println(course1);
+        System.out.println(course2);
+        System.out.println(student1);
+        System.out.println(student2);
+
+        // Remove a student from a course
+        course1.removeStudent(student2.getId());
+        student1.removeCourse(course2.getCode());
+
+        // Display courses and students after removal
+        System.out.println(course1);
+        System.out.println(course2);
+        System.out.println(student1);
+        System.out.println(student2);
+    }
+}
