@@ -1,0 +1,105 @@
+import java.util.*;
+import java.util.concurrent.*;
+
+class QuizQuestion {
+    private String question;
+    private List<String> options;
+    private int correctOption;
+
+    public QuizQuestion(String question, List<String> options, int correctOption) {
+        this.question = question;
+        this.options = options;
+        this.correctOption = correctOption;
+    }
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public List<String> getOptions() {
+        return options;
+    }
+
+    public int getCorrectOption() {
+        return correctOption;
+    }
+}
+
+class Quiz {
+    private List<QuizQuestion> questions;
+    private int currentQuestionIndex;
+    private int score;
+    private final Scanner scanner = new Scanner(System.in);
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+
+    public Quiz(List<QuizQuestion> questions) {
+        this.questions = questions;
+    }
+
+    public void startQuiz() {
+        score = 0;
+        currentQuestionIndex = 0;
+        System.out.println("Welcome to the Quiz!");
+        System.out.println("You will have 10 seconds to answer each question.\n");
+
+        askNextQuestion();
+    }
+
+    private void askNextQuestion() {
+        if (currentQuestionIndex < questions.size()) {
+            QuizQuestion question = questions.get(currentQuestionIndex);
+            System.out.println("Question " + (currentQuestionIndex + 1) + ": " + question.getQuestion());
+            List<String> options = question.getOptions();
+            for (int i = 0; i < options.size(); i++) {
+                System.out.println((i + 1) + ". " + options.get(i));
+            }
+            System.out.println("Enter your answer (1-" + options.size() + "): ");
+
+            // Start timer for 10 seconds
+            ScheduledFuture<?> timerFuture = executorService.schedule(this::timeUp, 10, TimeUnit.SECONDS);
+
+            int selectedOption = scanner.nextInt();
+            timerFuture.cancel(false); // Cancel timer since user has answered
+            checkAnswer(selectedOption - 1, question.getCorrectOption());
+        } else {
+            endQuiz();
+        }
+    }
+
+    private void timeUp() {
+        System.out.println("\nTime's up!");
+        checkAnswer(-1, -1); // No option selected, treat as incorrect answer
+    }
+
+    private void checkAnswer(int selectedOption, int correctOption) {
+        if (selectedOption == correctOption) {
+            System.out.println("Correct!");
+            score++;
+        } else if (selectedOption == -1) {
+            System.out.println("You ran out of time! The correct answer was option " + (correctOption + 1));
+        } else {
+            System.out.println("Incorrect! The correct answer was option " + (correctOption + 1));
+        }
+        System.out.println("Your current score: " + score + "\n");
+        currentQuestionIndex++;
+        askNextQuestion();
+    }
+
+    private void endQuiz() {
+        System.out.println("Quiz finished!");
+        System.out.println("Final Score: " + score + "/" + questions.size());
+        executorService.shutdown();
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        List<QuizQuestion> questions = new ArrayList<>();
+        questions.add(new QuizQuestion("What is the capital of France?", Arrays.asList("London", "Paris", "Berlin", "Madrid"), 1));
+        questions.add(new QuizQuestion("What is the largest planet in our solar system?", Arrays.asList("Venus", "Saturn", "Jupiter", "Mars"), 2));
+        questions.add(new QuizQuestion("Who wrote 'Romeo and Juliet'?", Arrays.asList("Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"), 1));
+
+        Quiz quiz = new Quiz(questions);
+        quiz.startQuiz();
+    }
+}
